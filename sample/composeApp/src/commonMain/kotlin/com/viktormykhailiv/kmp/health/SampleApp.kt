@@ -81,6 +81,7 @@ import com.viktormykhailiv.kmp.health.region.RegionalPreferences
 import com.viktormykhailiv.kmp.health.region.TemperatureRegionalPreference
 import com.viktormykhailiv.kmp.health.region.preferred
 import com.viktormykhailiv.kmp.health.sleep.SleepSessionCanvas
+import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 import com.viktormykhailiv.kmp.health.units.Length
 import com.viktormykhailiv.kmp.health.units.Mass
 import com.viktormykhailiv.kmp.health.units.Temperature
@@ -94,7 +95,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 
 @Composable
 fun SampleApp() {
@@ -473,7 +473,7 @@ fun SampleApp() {
                                         Text("Min ${record.min}")
                                         Text("Max ${record.max}")
                                     }
-                                    
+
                                     is CyclingPedalingCadenceAggregatedRecord -> {
                                         Text("Average ${record.avg}")
                                         Text("Min ${record.min}")
