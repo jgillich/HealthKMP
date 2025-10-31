@@ -22,6 +22,7 @@ import platform.HealthKit.HKQuantityTypeIdentifierBloodPressureSystolic
 import platform.HealthKit.HKQuantityTypeIdentifierBodyFatPercentage
 import platform.HealthKit.HKQuantityTypeIdentifierBodyMass
 import platform.HealthKit.HKQuantityTypeIdentifierBodyTemperature
+import platform.HealthKit.HKQuantityTypeIdentifierCyclingCadence
 import platform.HealthKit.HKQuantityTypeIdentifierCyclingPower
 import platform.HealthKit.HKQuantityTypeIdentifierCyclingSpeed
 import platform.HealthKit.HKQuantityTypeIdentifierDistanceWalkingRunning
@@ -87,4 +88,10 @@ internal fun HealthDataType.toHKSampleType(): List<HKSampleType?> = when (this) 
 
     Weight ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyMass))
+
+    HealthDataType.PedalingCadence ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingCadence))
+
+    HealthDataType.Power ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingPower))
 }

@@ -10,6 +10,8 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
+import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
@@ -20,6 +22,8 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.WeightAggregatedRecord
@@ -31,14 +35,16 @@ import com.viktormykhailiv.kmp.health.records.ExerciseSessionRecord
 import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
+import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.StepsRecord
 import com.viktormykhailiv.kmp.health.records.WeightRecord
 import com.viktormykhailiv.kmp.health.records.metadata.Device
 import com.viktormykhailiv.kmp.health.records.metadata.Metadata
 import com.viktormykhailiv.kmp.health.records.metadata.getLocalDevice
-import kotlin.time.Instant
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -162,6 +168,26 @@ suspend fun HealthManager.readWeight(
         endTime = endTime,
         type = Weight,
     ).map { it.filterIsInstance<WeightRecord>() }
+
+suspend fun HealthManager.readPower(
+    startTime: Instant,
+    endTime: Instant,
+): Result<List<PowerRecord>> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ).map { it.filterIsInstance<PowerRecord>() }
+
+suspend fun HealthManager.readPedalingCadence(
+    startTime: Instant,
+    endTime: Instant,
+): Result<List<PedalingCadenceRecord>> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = PedalingCadence,
+    ).map { it.filterIsInstance<PedalingCadenceRecord>() }
 // endregion
 
 // region Aggregate extensions
@@ -264,4 +290,24 @@ suspend fun HealthManager.aggregateWeight(
         endTime = endTime,
         type = Weight,
     ).mapCatching { it as WeightAggregatedRecord }
+
+suspend fun HealthManager.aggegratePower(
+    startTime: Instant,
+    endTime: Instant,
+): Result<PowerAggregatedRecord> =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ).mapCatching { it as PowerAggregatedRecord }
+
+suspend fun HealthManager.aggregatePedalingCadence(
+    startTime: Instant,
+    endTime: Instant,
+): Result<PedalingCadenceAggregatedRecord> =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = PedalingCadence,
+    ).mapCatching { it as PedalingCadenceAggregatedRecord }
 // endregion

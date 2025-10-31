@@ -3,8 +3,10 @@ package com.viktormykhailiv.kmp.health
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -16,6 +18,8 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
+import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
@@ -26,19 +30,21 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.WeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.units.Mass
 import com.viktormykhailiv.kmp.health.units.Temperature
-import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 import com.viktormykhailiv.kmp.health.units.kilograms
 import com.viktormykhailiv.kmp.health.units.meters
 import com.viktormykhailiv.kmp.health.units.millimetersOfMercury
 import com.viktormykhailiv.kmp.health.units.percent
-import kotlin.time.Instant
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlin.time.toKotlinDuration
+import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 
 /**
  * Note: following `AggregateMetric` must be aligned with [toHealthAggregatedRecord].
@@ -85,6 +91,14 @@ internal fun HealthDataType.toAggregateMetrics(): Set<AggregateMetric<Any>> = wh
 
     Weight ->
         setOf(WeightRecord.WEIGHT_AVG, WeightRecord.WEIGHT_MIN, WeightRecord.WEIGHT_MAX)
+
+    Power -> setOf(PowerRecord.POWER_AVG, PowerRecord.POWER_MIN, PowerRecord.POWER_MAX)
+
+    PedalingCadence -> setOf(
+        CyclingPedalingCadenceRecord.RPM_AVG,
+        CyclingPedalingCadenceRecord.RPM_MIN,
+        CyclingPedalingCadenceRecord.RPM_MAX
+    )
 }
 
 /**
@@ -181,6 +195,26 @@ internal fun AggregationResult.toHealthAggregatedRecord(
             max = get(WeightRecord.WEIGHT_MAX)?.toMass() ?: 0.kilograms,
         )
     }
+
+    Power -> {
+        PowerAggregatedRecord(
+            startTime = startTime,
+            endTime = endTime,
+            avg = get(PowerRecord.POWER_AVG)?.inWatts ?: 0.0,
+            min = get(PowerRecord.POWER_MIN)?.inWatts ?: 0.0,
+            max = get(PowerRecord.POWER_MAX)?.inWatts ?: 0.0,
+        )
+    }
+
+    PedalingCadence -> {
+        PedalingCadenceAggregatedRecord(
+            startTime = startTime,
+            endTime = endTime,
+            avg = get(CyclingPedalingCadenceRecord.RPM_AVG) ?: 0.0,
+            min = get(CyclingPedalingCadenceRecord.RPM_MIN) ?: 0.0,
+            max = get(CyclingPedalingCadenceRecord.RPM_MAX) ?: 0.0,
+        )
+    }
 }
 
 internal suspend fun HealthConnectManager.aggregateBloodGlucose(
@@ -268,3 +302,4 @@ internal suspend fun HealthConnectManager.aggregateLeanBodyMass(
             ),
         )
     }.getOrThrow()
+

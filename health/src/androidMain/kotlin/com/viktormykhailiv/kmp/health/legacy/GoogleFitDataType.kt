@@ -11,6 +11,8 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
+import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
@@ -57,6 +59,10 @@ internal fun HealthDataType.toDataType(): DataType = when (this) {
     Steps -> DataType.TYPE_STEP_COUNT_DELTA
 
     Weight -> DataType.TYPE_WEIGHT
+
+    Power -> throw IllegalArgumentException("Power is not supported")
+
+    PedalingCadence -> throw IllegalArgumentException("PedalingCadence is not supported")
 }
 
 /**

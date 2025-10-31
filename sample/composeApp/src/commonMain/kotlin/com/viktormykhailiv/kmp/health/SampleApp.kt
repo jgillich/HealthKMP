@@ -40,6 +40,8 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
+import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
@@ -50,6 +52,8 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.WeightAggregatedRecord
@@ -67,6 +71,8 @@ import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
 import com.viktormykhailiv.kmp.health.records.MealType
+import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.SleepStageType
 import com.viktormykhailiv.kmp.health.records.StepsRecord
@@ -75,7 +81,6 @@ import com.viktormykhailiv.kmp.health.region.RegionalPreferences
 import com.viktormykhailiv.kmp.health.region.TemperatureRegionalPreference
 import com.viktormykhailiv.kmp.health.region.preferred
 import com.viktormykhailiv.kmp.health.sleep.SleepSessionCanvas
-import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 import com.viktormykhailiv.kmp.health.units.Length
 import com.viktormykhailiv.kmp.health.units.Mass
 import com.viktormykhailiv.kmp.health.units.Temperature
@@ -83,11 +88,12 @@ import com.viktormykhailiv.kmp.health.units.meters
 import com.viktormykhailiv.kmp.health.units.millimetersOfMercury
 import com.viktormykhailiv.kmp.health.units.percent
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlin.random.Random
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 
 @Composable
 fun SampleApp() {
@@ -107,6 +113,8 @@ fun SampleApp() {
             Sleep,
             Steps,
             Weight,
+            Power,
+            PedalingCadence,
         )
     }
     val writeTypes = remember {
@@ -122,6 +130,8 @@ fun SampleApp() {
             Sleep,
             Steps,
             Weight,
+            Power,
+            PedalingCadence,
         )
     }
 
@@ -334,8 +344,7 @@ fun SampleApp() {
 
                                     is HeartRate -> {
                                         val heartRates = records.filterIsInstance<HeartRateRecord>()
-                                            .map { it.samples }
-                                            .flatten()
+                                            .flatMap { it.samples }
                                         val average = heartRates.map { it.beatsPerMinute }.average()
                                         val min = heartRates.minOfOrNull { it.beatsPerMinute }
                                         val max = heartRates.maxOfOrNull { it.beatsPerMinute }
@@ -404,6 +413,30 @@ fun SampleApp() {
                                         Text("Min $min")
                                         Text("Max $max")
                                     }
+
+                                    Power -> {
+                                        val weight = records.filterIsInstance<PowerRecord>()
+                                            .flatMap { it.samples }
+                                        val average = weight.map { it.power }.average()
+                                        val min = weight.minOfOrNull { it.power }
+                                        val max = weight.maxOfOrNull { it.power }
+                                        Text("Average $average")
+                                        Text("Min $min")
+                                        Text("Max $max")
+                                    }
+
+                                    PedalingCadence -> {
+                                        val weight =
+                                            records.filterIsInstance<PedalingCadenceRecord>()
+                                                .flatMap { it.samples }
+                                        val average =
+                                            weight.map { it.revolutionsPerMinute }.average()
+                                        val min = weight.minOfOrNull { it.revolutionsPerMinute }
+                                        val max = weight.maxOfOrNull { it.revolutionsPerMinute }
+                                        Text("Average $average")
+                                        Text("Min $min")
+                                        Text("Max $max")
+                                    }
                                 }
                             }
                             ?.onFailure {
@@ -467,6 +500,18 @@ fun SampleApp() {
                                     }
 
                                     is WeightAggregatedRecord -> {
+                                        Text("Average ${record.avg}")
+                                        Text("Min ${record.min}")
+                                        Text("Max ${record.max}")
+                                    }
+
+                                    is PowerAggregatedRecord -> {
+                                        Text("Average ${record.avg}")
+                                        Text("Min ${record.min}")
+                                        Text("Max ${record.max}")
+                                    }
+
+                                    is PedalingCadenceAggregatedRecord -> {
                                         Text("Average ${record.avg}")
                                         Text("Min ${record.min}")
                                         Text("Max ${record.max}")
@@ -959,6 +1004,83 @@ fun SampleApp() {
                         }
                         ?.onFailure {
                             Text("Failed to write weight $it")
+                        }
+                    Divider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    var writePower by remember { mutableStateOf<Result<Unit>?>(null) }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                val samplesCount = 6
+                                val sampleInterval = 10.minutes
+                                val endTime = Clock.System.now()
+                                val startTime = endTime.minus(sampleInterval * samplesCount)
+                                writePower = health.writeData(
+                                    listOf(
+                                        PowerRecord(
+                                            startTime = startTime,
+                                            endTime = endTime,
+                                            samples = List(samplesCount) {
+                                                PowerRecord.Sample(
+                                                    time = startTime.plus((it * sampleInterval.inWholeMinutes).minutes),
+                                                    power = Random.nextDouble(50.0, 300.0),
+                                                )
+                                            },
+                                            metadata = generateManualEntryMetadata(),
+                                        ),
+                                    )
+                                )
+                            }
+                        },
+                    ) {
+                        Text("Write power")
+                    }
+                    writePower
+                        ?.onSuccess {
+                            Text("Successfully wrote power")
+                        }
+                        ?.onFailure {
+                            Text("Failed to write power $it")
+                        }
+                    Divider()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    var writePedalingCadence by remember { mutableStateOf<Result<Unit>?>(null) }
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                val samplesCount = 6
+                                val sampleInterval = 10.minutes
+                                val endTime = Clock.System.now()
+                                val startTime = endTime.minus(sampleInterval * samplesCount)
+                                writePedalingCadence = health.writeData(
+                                    listOf(
+                                        PedalingCadenceRecord(
+                                            startTime = startTime,
+                                            endTime = endTime,
+                                            samples = List(samplesCount) {
+                                                PedalingCadenceRecord.Sample(
+                                                    time = startTime.plus((it * sampleInterval.inWholeMinutes).minutes),
+                                                    revolutionsPerMinute = Random.nextDouble(
+                                                        10.0,
+                                                        150.0
+                                                    ),
+                                                )
+                                            },
+                                            metadata = generateManualEntryMetadata(),
+                                        ),
+                                    )
+                                )
+                            }
+                        },
+                    ) {
+                        Text("Write pedaling cadence")
+                    }
+                    writePedalingCadence
+                        ?.onSuccess {
+                            Text("Successfully wrote pedaling cadence")
+                        }
+                        ?.onFailure {
+                            Text("Failed to write pedaling cadence $it")
                         }
                 }
             }

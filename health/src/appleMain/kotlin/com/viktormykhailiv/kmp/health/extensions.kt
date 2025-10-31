@@ -13,6 +13,8 @@ import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
+import com.viktormykhailiv.kmp.health.HealthDataType.Power
+import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
 import com.viktormykhailiv.kmp.health.aggregate.BloodGlucoseAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.BloodPressureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.BodyFatAggregatedRecord
@@ -20,6 +22,8 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.WeightAggregatedRecord
@@ -31,6 +35,8 @@ import com.viktormykhailiv.kmp.health.records.ExerciseSessionRecord
 import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
+import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.StepsRecord
 import com.viktormykhailiv.kmp.health.records.WeightRecord
@@ -171,6 +177,28 @@ suspend fun SwiftHealthManager.readWeight(
         endTime = endTime,
         type = Weight,
     ).filterIsInstance<WeightRecord>()
+
+@Throws(Throwable::class)
+suspend fun SwiftHealthManager.readPower(
+    startTime: NSDate,
+    endTime: NSDate,
+): List<PowerRecord> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ).filterIsInstance<PowerRecord>()
+
+@Throws(Throwable::class)
+suspend fun SwiftHealthManager.readPedalingCadence(
+    startTime: NSDate,
+    endTime: NSDate,
+): List<PedalingCadenceRecord> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = PedalingCadence,
+    ).filterIsInstance<PedalingCadenceRecord>()
 // endregion
 
 // region Aggregate extensions
@@ -283,4 +311,26 @@ suspend fun SwiftHealthManager.aggregateWeight(
         endTime = endTime,
         type = Weight,
     ) as WeightAggregatedRecord
+
+@Throws(Throwable::class)
+suspend fun SwiftHealthManager.aggregatePower(
+    startTime: NSDate,
+    endTime: NSDate,
+): PowerAggregatedRecord =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ) as PowerAggregatedRecord
+
+@Throws(Throwable::class)
+suspend fun SwiftHealthManager.aggregatePedalingCadence(
+    startTime: NSDate,
+    endTime: NSDate,
+): PedalingCadenceAggregatedRecord =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = PedalingCadence,
+    ) as PedalingCadenceAggregatedRecord
 // endregion
