@@ -6,15 +6,8 @@ import com.viktormykhailiv.kmp.health.SeriesRecord
 import com.viktormykhailiv.kmp.health.records.metadata.Metadata
 import kotlin.time.Instant
 
-
 /**
- * Captures the user's pedaling cadence during a workout. Each record represents a series of
- * measurements.
- *
- * @param startTime The start time of the record.
- * @param endTime The end time of the record.
- * @param samples The list of cadence samples, each containing a timestamp and the pedaling rate.
- * @param metadata Associated metadata for the record.
+ * Captures the user's cycling pedaling cadence. Each record represents a series of measurements.
  */
 data class CyclingPedalingCadenceRecord(
     override val startTime: Instant,
@@ -30,10 +23,11 @@ data class CyclingPedalingCadenceRecord(
     }
 
     /**
-     * A single measurement of the pedaling rate at a specific instant in time.
+     * Represents a single measurement of the cycling pedaling cadence.
      *
      * @param time The point in time when the measurement was taken.
-     * @param revolutionsPerMinute The pedaling rate in revolutions per minute (RPM).
+     * @param revolutionsPerMinute Cycling revolutions per minute. Valid range: 0-10000.
+     * @see CyclingPedalingCadenceRecord
      */
     data class Sample(
         val time: Instant,
