@@ -473,6 +473,12 @@ fun SampleApp() {
                                         Text("Min ${record.min}")
                                         Text("Max ${record.max}")
                                     }
+                                    
+                                    is CyclingPedalingCadenceAggregatedRecord -> {
+                                        Text("Average ${record.avg}")
+                                        Text("Min ${record.min}")
+                                        Text("Max ${record.max}")
+                                    }
 
                                     is HeartRateAggregatedRecord -> {
                                         Text("Average ${record.avg}")
@@ -492,6 +498,12 @@ fun SampleApp() {
                                         Text("Max ${record.max}")
                                     }
 
+                                    is PowerAggregatedRecord -> {
+                                        Text("Average ${record.avg}")
+                                        Text("Min ${record.min}")
+                                        Text("Max ${record.max}")
+                                    }
+
                                     is SleepAggregatedRecord -> {
                                         Text("Total ${record.totalDuration}")
                                     }
@@ -501,18 +513,6 @@ fun SampleApp() {
                                     }
 
                                     is WeightAggregatedRecord -> {
-                                        Text("Average ${record.avg}")
-                                        Text("Min ${record.min}")
-                                        Text("Max ${record.max}")
-                                    }
-
-                                    is PowerAggregatedRecord -> {
-                                        Text("Average ${record.avg}")
-                                        Text("Min ${record.min}")
-                                        Text("Max ${record.max}")
-                                    }
-
-                                    is CyclingPedalingCadenceAggregatedRecord -> {
                                         Text("Average ${record.avg}")
                                         Text("Min ${record.min}")
                                         Text("Max ${record.max}")
