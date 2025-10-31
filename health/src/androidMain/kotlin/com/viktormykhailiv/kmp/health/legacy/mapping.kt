@@ -15,7 +15,7 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
@@ -61,6 +61,9 @@ internal fun List<DataPoint>.toHealthRecords(type: HealthDataType): List<HealthR
         is BodyTemperature ->
             throw IllegalArgumentException("BodyTemperature is not supported")
 
+        is CyclingPedalingCadence ->
+            throw IllegalArgumentException("PedalingCadence is not supported")
+
         is Exercise ->
             throw IllegalArgumentException("Exercise is not supported")
 
@@ -94,6 +97,9 @@ internal fun List<DataPoint>.toHealthRecords(type: HealthDataType): List<HealthR
 
         is LeanBodyMass ->
             throw IllegalArgumentException("LeanBodyMass is not supported")
+
+        is Power ->
+            throw IllegalArgumentException("Power is not supported")
 
         is Sleep -> {
             val metadata = firstOrNull().toMetadata()
@@ -139,10 +145,6 @@ internal fun List<DataPoint>.toHealthRecords(type: HealthDataType): List<HealthR
                 )
             }
         }
-
-        is Power -> throw IllegalArgumentException("Power is not supported")
-
-        is PedalingCadence -> throw IllegalArgumentException("PedalingCadence is not supported")
     }
 }
 

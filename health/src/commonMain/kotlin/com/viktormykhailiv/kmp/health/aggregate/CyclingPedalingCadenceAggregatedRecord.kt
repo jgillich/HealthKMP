@@ -2,7 +2,7 @@ package com.viktormykhailiv.kmp.health.aggregate
 
 import com.viktormykhailiv.kmp.health.HealthAggregatedRecord
 import com.viktormykhailiv.kmp.health.HealthDataType
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import kotlin.time.Instant
 
 /**
@@ -12,7 +12,7 @@ import kotlin.time.Instant
  * @param min Minimum rpm.
  * @param max Maximum rpm.
  */
-data class PedalingCadenceAggregatedRecord(
+data class CyclingPedalingCadenceAggregatedRecord(
     val startTime: Instant,
     val endTime: Instant,
     val avg: Double,
@@ -20,5 +20,5 @@ data class PedalingCadenceAggregatedRecord(
     val max: Double,
 ) : HealthAggregatedRecord {
 
-    override val dataType: HealthDataType = PedalingCadence
+    override val dataType: HealthDataType = CyclingPedalingCadence
 }

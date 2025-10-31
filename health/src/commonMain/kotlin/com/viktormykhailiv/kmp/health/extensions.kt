@@ -10,7 +10,7 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
@@ -22,7 +22,7 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
-import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.CyclingPedalingCadenceAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
@@ -35,7 +35,7 @@ import com.viktormykhailiv.kmp.health.records.ExerciseSessionRecord
 import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
-import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.CyclingPedalingCadenceRecord
 import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.StepsRecord
@@ -98,6 +98,16 @@ suspend fun HealthManager.readBodyTemperature(
         type = BodyTemperature,
     ).map { it.filterIsInstance<BodyTemperatureRecord>() }
 
+suspend fun HealthManager.readPedalingCadence(
+    startTime: Instant,
+    endTime: Instant,
+): Result<List<CyclingPedalingCadenceRecord>> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = CyclingPedalingCadence,
+    ).map { it.filterIsInstance<CyclingPedalingCadenceRecord>() }
+
 suspend fun HealthManager.readExercise(
     startTime: Instant,
     endTime: Instant,
@@ -139,6 +149,16 @@ suspend fun HealthManager.readLeanBodyMass(
         type = LeanBodyMass,
     ).map { it.filterIsInstance<LeanBodyMassRecord>() }
 
+suspend fun HealthManager.readPower(
+    startTime: Instant,
+    endTime: Instant,
+): Result<List<PowerRecord>> =
+    readData(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ).map { it.filterIsInstance<PowerRecord>() }
+
 suspend fun HealthManager.readSleep(
     startTime: Instant,
     endTime: Instant,
@@ -168,26 +188,6 @@ suspend fun HealthManager.readWeight(
         endTime = endTime,
         type = Weight,
     ).map { it.filterIsInstance<WeightRecord>() }
-
-suspend fun HealthManager.readPower(
-    startTime: Instant,
-    endTime: Instant,
-): Result<List<PowerRecord>> =
-    readData(
-        startTime = startTime,
-        endTime = endTime,
-        type = Power,
-    ).map { it.filterIsInstance<PowerRecord>() }
-
-suspend fun HealthManager.readPedalingCadence(
-    startTime: Instant,
-    endTime: Instant,
-): Result<List<PedalingCadenceRecord>> =
-    readData(
-        startTime = startTime,
-        endTime = endTime,
-        type = PedalingCadence,
-    ).map { it.filterIsInstance<PedalingCadenceRecord>() }
 // endregion
 
 // region Aggregate extensions
@@ -231,6 +231,16 @@ suspend fun HealthManager.aggregateBodyTemperature(
         type = BodyTemperature,
     ).mapCatching { it as BodyTemperatureAggregatedRecord }
 
+suspend fun HealthManager.aggregatePedalingCadence(
+    startTime: Instant,
+    endTime: Instant,
+): Result<CyclingPedalingCadenceAggregatedRecord> =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = CyclingPedalingCadence,
+    ).mapCatching { it as CyclingPedalingCadenceAggregatedRecord }
+
 suspend fun HealthManager.aggregateHeartRate(
     startTime: Instant,
     endTime: Instant,
@@ -261,6 +271,16 @@ suspend fun HealthManager.aggregateLeanBodyMass(
         type = LeanBodyMass,
     ).mapCatching { it as LeanBodyMassAggregatedRecord }
 
+suspend fun HealthManager.aggegratePower(
+    startTime: Instant,
+    endTime: Instant,
+): Result<PowerAggregatedRecord> =
+    aggregate(
+        startTime = startTime,
+        endTime = endTime,
+        type = Power,
+    ).mapCatching { it as PowerAggregatedRecord }
+
 suspend fun HealthManager.aggregateSleep(
     startTime: Instant,
     endTime: Instant,
@@ -290,24 +310,4 @@ suspend fun HealthManager.aggregateWeight(
         endTime = endTime,
         type = Weight,
     ).mapCatching { it as WeightAggregatedRecord }
-
-suspend fun HealthManager.aggegratePower(
-    startTime: Instant,
-    endTime: Instant,
-): Result<PowerAggregatedRecord> =
-    aggregate(
-        startTime = startTime,
-        endTime = endTime,
-        type = Power,
-    ).mapCatching { it as PowerAggregatedRecord }
-
-suspend fun HealthManager.aggregatePedalingCadence(
-    startTime: Instant,
-    endTime: Instant,
-): Result<PedalingCadenceAggregatedRecord> =
-    aggregate(
-        startTime = startTime,
-        endTime = endTime,
-        type = PedalingCadence,
-    ).mapCatching { it as PedalingCadenceAggregatedRecord }
 // endregion

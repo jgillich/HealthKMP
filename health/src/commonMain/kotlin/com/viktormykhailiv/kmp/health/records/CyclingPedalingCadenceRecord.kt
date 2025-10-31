@@ -1,7 +1,7 @@
 package com.viktormykhailiv.kmp.health.records
 
 import com.viktormykhailiv.kmp.health.HealthDataType
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import com.viktormykhailiv.kmp.health.SeriesRecord
 import com.viktormykhailiv.kmp.health.records.metadata.Metadata
 import kotlin.time.Instant
@@ -16,14 +16,14 @@ import kotlin.time.Instant
  * @param samples The list of cadence samples, each containing a timestamp and the pedaling rate.
  * @param metadata Associated metadata for the record.
  */
-data class PedalingCadenceRecord(
+data class CyclingPedalingCadenceRecord(
     override val startTime: Instant,
     override val endTime: Instant,
     override val samples: List<Sample>,
     override val metadata: Metadata,
-) : SeriesRecord<PedalingCadenceRecord.Sample> {
+) : SeriesRecord<CyclingPedalingCadenceRecord.Sample> {
 
-    override val dataType: HealthDataType = PedalingCadence
+    override val dataType: HealthDataType = CyclingPedalingCadence
 
     init {
         require(startTime <= endTime) { "startTime must be before endTime." }

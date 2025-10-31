@@ -11,7 +11,7 @@ import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
 import com.viktormykhailiv.kmp.health.HealthDataType.Weight
 import com.viktormykhailiv.kmp.health.HealthDataType.Power
@@ -22,13 +22,14 @@ import com.viktormykhailiv.kmp.health.aggregate.BodyTemperatureAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeartRateAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.HeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.LeanBodyMassAggregatedRecord
-import com.viktormykhailiv.kmp.health.aggregate.PedalingCadenceAggregatedRecord
+import com.viktormykhailiv.kmp.health.aggregate.CyclingPedalingCadenceAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.PowerAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.SleepAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.StepsAggregatedRecord
 import com.viktormykhailiv.kmp.health.aggregate.WeightAggregatedRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.region.TemperatureRegionalPreference
+import com.viktormykhailiv.kmp.health.units.watts
 import kotlinx.cinterop.UnsafeNumber
 import kotlin.time.Instant
 import kotlinx.datetime.toKotlinInstant
@@ -69,6 +70,9 @@ internal fun HealthDataType.toHKQuantityType(): List<HKQuantityType?> = when (th
     BodyTemperature ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyTemperature))
 
+    CyclingPedalingCadence ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingCadence))
+
     is Exercise ->
         throw IllegalArgumentException("Exercise is not supported for aggregation")
 
@@ -81,6 +85,9 @@ internal fun HealthDataType.toHKQuantityType(): List<HKQuantityType?> = when (th
     LeanBodyMass ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierLeanBodyMass))
 
+    Power ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingPower))
+
     Sleep ->
         throw IllegalArgumentException("Sleep is not supported for aggregation")
 
@@ -89,12 +96,6 @@ internal fun HealthDataType.toHKQuantityType(): List<HKQuantityType?> = when (th
 
     Weight ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyMass))
-
-    PedalingCadence ->
-        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingCadence))
-
-    HealthDataType.Power ->
-        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingPower))
 }
 
 /**
@@ -113,6 +114,9 @@ internal fun HealthDataType.toHKStatisticOptions(): HKStatisticsOptions = when (
     BodyTemperature ->
         discreteStatisticsOptions()
 
+    CyclingPedalingCadence ->
+        discreteStatisticsOptions()
+
     is Exercise ->
         discreteStatisticsOptions()
 
@@ -125,6 +129,9 @@ internal fun HealthDataType.toHKStatisticOptions(): HKStatisticsOptions = when (
     LeanBodyMass ->
         discreteStatisticsOptions()
 
+    Power ->
+        discreteStatisticsOptions()
+
     Sleep ->
         throw IllegalArgumentException("Sleep is not supported for aggregation")
 
@@ -133,10 +140,6 @@ internal fun HealthDataType.toHKStatisticOptions(): HKStatisticsOptions = when (
 
     Weight ->
         discreteStatisticsOptions()
-
-    PedalingCadence -> discreteStatisticsOptions()
-
-    Power -> discreteStatisticsOptions()
 }
 
 private fun discreteStatisticsOptions(): HKStatisticsOptions {
@@ -204,6 +207,16 @@ internal suspend fun List<HKStatistics>.toHealthAggregatedRecord(
             )
         }
 
+        HKQuantityTypeIdentifierCyclingCadence -> {
+            CyclingPedalingCadenceAggregatedRecord(
+                startTime = record.startDate.toKotlinInstant(),
+                endTime = record.endDate.toKotlinInstant(),
+                avg = record.averageQuantity().rpmValue,
+                min = record.minimumQuantity().rpmValue,
+                max = record.maximumQuantity().rpmValue,
+            )
+        }
+
         HKQuantityTypeIdentifierHeartRate -> {
             HeartRateAggregatedRecord(
                 startTime = record.startDate.toKotlinInstant(),
@@ -234,6 +247,16 @@ internal suspend fun List<HKStatistics>.toHealthAggregatedRecord(
             )
         }
 
+        HKQuantityTypeIdentifierCyclingPower -> {
+            PowerAggregatedRecord(
+                startTime = record.startDate.toKotlinInstant(),
+                endTime = record.endDate.toKotlinInstant(),
+                avg = record.averageQuantity().wattValue.watts,
+                min = record.minimumQuantity().wattValue.watts,
+                max = record.maximumQuantity().wattValue.watts,
+            )
+        }
+
         HKQuantityTypeIdentifierStepCount -> {
             StepsAggregatedRecord(
                 startTime = record.startDate.toKotlinInstant(),
@@ -249,26 +272,6 @@ internal suspend fun List<HKStatistics>.toHealthAggregatedRecord(
                 avg = record.averageQuantity().massValue,
                 min = record.minimumQuantity().massValue,
                 max = record.maximumQuantity().massValue,
-            )
-        }
-
-        HKQuantityTypeIdentifierCyclingCadence -> {
-            PedalingCadenceAggregatedRecord(
-                startTime = record.startDate.toKotlinInstant(),
-                endTime = record.endDate.toKotlinInstant(),
-                avg = record.averageQuantity().rpmValue,
-                min = record.minimumQuantity().rpmValue,
-                max = record.maximumQuantity().rpmValue,
-            )
-        }
-
-        HKQuantityTypeIdentifierCyclingPower -> {
-            PowerAggregatedRecord(
-                startTime = record.startDate.toKotlinInstant(),
-                endTime = record.endDate.toKotlinInstant(),
-                avg = record.averageQuantity().wattValue,
-                min = record.minimumQuantity().wattValue,
-                max = record.maximumQuantity().wattValue,
             )
         }
 

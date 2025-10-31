@@ -18,14 +18,14 @@
     <uses-permission android:name="android.permission.health.WRITE_HEIGHT" />
     <uses-permission android:name="android.permission.health.READ_LEAN_BODY_MASS" />
     <uses-permission android:name="android.permission.health.WRITE_LEAN_BODY_MASS" />
+    <uses-permission android:name="android.permission.health.READ_POWER" />
+    <uses-permission android:name="android.permission.health.WRITE_POWER" />
     <uses-permission android:name="android.permission.health.READ_SLEEP" />
     <uses-permission android:name="android.permission.health.WRITE_SLEEP" />
     <uses-permission android:name="android.permission.health.READ_STEPS" />
     <uses-permission android:name="android.permission.health.WRITE_STEPS" />
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
-    <uses-permission android:name="android.permission.health.READ_POWER" />
-    <uses-permission android:name="android.permission.health.WRITE_POWER" />
 
     <application
         android:allowBackup="true"

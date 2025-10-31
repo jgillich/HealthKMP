@@ -51,6 +51,9 @@ internal fun HealthDataType.toHKSampleType(): List<HKSampleType?> = when (this) 
     BodyTemperature ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyTemperature))
 
+    HealthDataType.CyclingPedalingCadence ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingCadence))
+
     is Exercise -> {
         buildList {
             add(HKSampleType.workoutType())
@@ -80,6 +83,9 @@ internal fun HealthDataType.toHKSampleType(): List<HKSampleType?> = when (this) 
     LeanBodyMass ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierLeanBodyMass))
 
+    HealthDataType.Power ->
+        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingPower))
+
     Sleep ->
         listOf(HKCategoryType.categoryTypeForIdentifier(HKCategoryTypeIdentifierSleepAnalysis))
 
@@ -88,10 +94,4 @@ internal fun HealthDataType.toHKSampleType(): List<HKSampleType?> = when (this) 
 
     Weight ->
         listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyMass))
-
-    HealthDataType.PedalingCadence ->
-        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingCadence))
-
-    HealthDataType.Power ->
-        listOf(HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierCyclingPower))
 }

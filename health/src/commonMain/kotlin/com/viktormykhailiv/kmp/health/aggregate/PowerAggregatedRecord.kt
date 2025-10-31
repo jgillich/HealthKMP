@@ -3,6 +3,7 @@ package com.viktormykhailiv.kmp.health.aggregate
 import com.viktormykhailiv.kmp.health.HealthAggregatedRecord
 import com.viktormykhailiv.kmp.health.HealthDataType
 import com.viktormykhailiv.kmp.health.HealthDataType.Power
+import com.viktormykhailiv.kmp.health.units.Power as PowerUnit
 import kotlin.time.Instant
 
 /**
@@ -15,9 +16,9 @@ import kotlin.time.Instant
 data class PowerAggregatedRecord(
     val startTime: Instant,
     val endTime: Instant,
-    val avg: Double,
-    val min: Double,
-    val max: Double,
+    val avg: PowerUnit,
+    val min: PowerUnit,
+    val max: PowerUnit,
 ) : HealthAggregatedRecord {
 
     override val dataType: HealthDataType = Power

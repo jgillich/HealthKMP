@@ -14,7 +14,7 @@ import com.viktormykhailiv.kmp.health.records.ExerciseType
 import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
-import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.CyclingPedalingCadenceRecord
 import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.SleepStageType
@@ -25,11 +25,13 @@ import com.viktormykhailiv.kmp.health.records.metadata.DeviceType
 import com.viktormykhailiv.kmp.health.records.metadata.Metadata
 import com.viktormykhailiv.kmp.health.region.TemperatureRegionalPreference
 import com.viktormykhailiv.kmp.health.units.Length
+import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 import com.viktormykhailiv.kmp.health.units.Mass
 import com.viktormykhailiv.kmp.health.units.Percentage
 import com.viktormykhailiv.kmp.health.units.Pressure
 import com.viktormykhailiv.kmp.health.units.Temperature
 import com.viktormykhailiv.kmp.health.units.percent
+import com.viktormykhailiv.kmp.health.units.watts
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.UnsafeNumber
 import kotlinx.cinterop.useContents
@@ -62,8 +64,8 @@ import platform.HealthKit.HKQuantityTypeIdentifierBloodPressureDiastolic
 import platform.HealthKit.HKQuantityTypeIdentifierBloodPressureSystolic
 import platform.HealthKit.HKQuantityTypeIdentifierBodyFatPercentage
 import platform.HealthKit.HKQuantityTypeIdentifierBodyMass
-import platform.HealthKit.HKQuantityTypeIdentifierCyclingCadence
 import platform.HealthKit.HKQuantityTypeIdentifierBodyTemperature
+import platform.HealthKit.HKQuantityTypeIdentifierCyclingCadence
 import platform.HealthKit.HKQuantityTypeIdentifierCyclingPower
 import platform.HealthKit.HKQuantityTypeIdentifierHeartRate
 import platform.HealthKit.HKQuantityTypeIdentifierHeight
@@ -137,7 +139,6 @@ import platform.HealthKit.poundUnit
 import platform.HealthKit.unitDividedByUnit
 import platform.HealthKit.wattUnit
 import kotlin.coroutines.resume
-import com.viktormykhailiv.kmp.health.units.BloodGlucose as BloodGlucoseUnit
 
 // region Write
 @OptIn(ExperimentalForeignApi::class)
@@ -226,6 +227,24 @@ internal fun HealthRecord.toHKObjects(): List<HKObject>? {
             endDate = record.time.toNSDate()
         }
 
+        is CyclingPedalingCadenceRecord -> {
+            quantityTypeIdentifier = HKQuantityTypeIdentifierCyclingCadence
+
+            return record.samples.map { sample ->
+                HKQuantitySample.quantitySampleWithType(
+                    quantityType = HKQuantityType.quantityTypeForIdentifier(quantityTypeIdentifier)
+                        ?: return null,
+                    quantity = HKQuantity.quantityWithUnit(
+                        unit = rpmUnit,
+                        doubleValue = sample.revolutionsPerMinute,
+                    ),
+                    startDate = sample.time.toNSDate(),
+                    endDate = sample.time.toNSDate(),
+                    metadata = metadata,
+                )
+            }
+        }
+        
         is ExerciseSessionRecord -> {
             return listOf(
                 HKWorkout.workoutWithActivityType(
@@ -281,6 +300,24 @@ internal fun HealthRecord.toHKObjects(): List<HKObject>? {
             endDate = record.time.toNSDate()
         }
 
+        is PowerRecord -> {
+            quantityTypeIdentifier = HKQuantityTypeIdentifierCyclingPower
+
+            return record.samples.map { sample ->
+                HKQuantitySample.quantitySampleWithType(
+                    quantityType = HKQuantityType.quantityTypeForIdentifier(quantityTypeIdentifier)
+                        ?: return null,
+                    quantity = HKQuantity.quantityWithUnit(
+                        unit = wattUnit,
+                        doubleValue = sample.power.inWatts,
+                    ),
+                    startDate = sample.time.toNSDate(),
+                    endDate = sample.time.toNSDate(),
+                    metadata = metadata,
+                )
+            }
+        }
+
         is SleepSessionRecord -> {
             val typeIdentifier = HKObjectType
                 .categoryTypeForIdentifier(HKCategoryTypeIdentifierSleepAnalysis)!!
@@ -324,42 +361,6 @@ internal fun HealthRecord.toHKObjects(): List<HKObject>? {
             )
             startDate = record.time.toNSDate()
             endDate = record.time.toNSDate()
-        }
-
-        is PowerRecord -> {
-            quantityTypeIdentifier = HKQuantityTypeIdentifierCyclingPower
-
-            return record.samples.map { sample ->
-                HKQuantitySample.quantitySampleWithType(
-                    quantityType = HKQuantityType.quantityTypeForIdentifier(quantityTypeIdentifier)
-                        ?: return null,
-                    quantity = HKQuantity.quantityWithUnit(
-                        unit = wattUnit,
-                        doubleValue = sample.power,
-                    ),
-                    startDate = sample.time.toNSDate(),
-                    endDate = sample.time.toNSDate(),
-                    metadata = metadata,
-                )
-            }
-        }
-
-        is PedalingCadenceRecord -> {
-            quantityTypeIdentifier = HKQuantityTypeIdentifierCyclingCadence
-
-            return record.samples.map { sample ->
-                HKQuantitySample.quantitySampleWithType(
-                    quantityType = HKQuantityType.quantityTypeForIdentifier(quantityTypeIdentifier)
-                        ?: return null,
-                    quantity = HKQuantity.quantityWithUnit(
-                        unit = rpmUnit,
-                        doubleValue = sample.revolutionsPerMinute,
-                    ),
-                    startDate = sample.time.toNSDate(),
-                    endDate = sample.time.toNSDate(),
-                    metadata = metadata,
-                )
-            }
         }
 
         else -> return null
@@ -532,7 +533,7 @@ internal suspend fun List<HKQuantitySample>.toHealthRecord(
             map { sample ->
                 PowerRecord.Sample(
                     time = sample.startDate.toKotlinInstant(),
-                    power = sample.quantity.wattValue
+                    power = sample.quantity.wattValue.watts
                 )
             }.sortedBy { it.time }
                 .let { samples ->
@@ -550,14 +551,14 @@ internal suspend fun List<HKQuantitySample>.toHealthRecord(
         HKQuantityTypeIdentifierCyclingCadence -> {
             val metadata = firstOrNull()?.metadata.toMetadata()
             map { sample ->
-                PedalingCadenceRecord.Sample(
+                CyclingPedalingCadenceRecord.Sample(
                     time = sample.startDate.toKotlinInstant(),
                     revolutionsPerMinute = sample.quantity.rpmValue
                 )
             }.sortedBy { it.time }
                 .let { samples ->
                     listOf(
-                        PedalingCadenceRecord(
+                        CyclingPedalingCadenceRecord(
                             startTime = samples.first().time,
                             endTime = samples.last().time,
                             samples = samples,

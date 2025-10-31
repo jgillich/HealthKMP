@@ -13,7 +13,7 @@ import com.viktormykhailiv.kmp.health.records.HeartRateRecord
 import com.viktormykhailiv.kmp.health.records.HeightRecord
 import com.viktormykhailiv.kmp.health.records.LeanBodyMassRecord
 import com.viktormykhailiv.kmp.health.records.MealType
-import com.viktormykhailiv.kmp.health.records.PedalingCadenceRecord
+import com.viktormykhailiv.kmp.health.records.CyclingPedalingCadenceRecord
 import com.viktormykhailiv.kmp.health.records.PowerRecord
 import com.viktormykhailiv.kmp.health.records.SleepSessionRecord
 import com.viktormykhailiv.kmp.health.records.SleepStageType
@@ -27,6 +27,7 @@ import com.viktormykhailiv.kmp.health.units.BloodGlucose
 import com.viktormykhailiv.kmp.health.units.Length
 import com.viktormykhailiv.kmp.health.units.Mass
 import com.viktormykhailiv.kmp.health.units.Percentage
+import com.viktormykhailiv.kmp.health.units.Power
 import com.viktormykhailiv.kmp.health.units.Pressure
 import com.viktormykhailiv.kmp.health.units.Temperature
 import kotlin.time.toJavaInstant
@@ -380,13 +381,13 @@ internal fun HealthRecord.toHCRecord(
         samples = record.samples.map { sample ->
             HCPowerRecord.Sample(
                 time = sample.time.toJavaInstant(),
-                power = HCPower.watts(sample.power),
+                power = sample.power.toHCPower(),
             )
         },
         metadata = record.metadata.toHCMetadata(),
     )
 
-    is PedalingCadenceRecord -> HCPedalingCadenceRecord(
+    is CyclingPedalingCadenceRecord -> HCPedalingCadenceRecord(
         startTime = record.startTime.toJavaInstant(),
         endTime = record.endTime.toJavaInstant(),
         startZoneOffset = null,
@@ -394,7 +395,7 @@ internal fun HealthRecord.toHCRecord(
         samples = record.samples.map { sample ->
             HCPedalingCadenceRecord.Sample(
                 time = sample.time.toJavaInstant(),
-                revolutionsPerMinute = sample.revolutionsPerMinute
+                revolutionsPerMinute = sample.revolutionsPerMinute,
             )
         },
         metadata = record.metadata.toHCMetadata(),
@@ -481,6 +482,18 @@ internal fun HCRecord.toHealthRecord(
         metadata = record.metadata.toMetadata(),
     )
 
+    is HCPedalingCadenceRecord -> CyclingPedalingCadenceRecord(
+        startTime = record.startTime.toKotlinInstant(),
+        endTime = record.endTime.toKotlinInstant(),
+        samples = record.samples.map { sample ->
+            CyclingPedalingCadenceRecord.Sample(
+                time = sample.time.toKotlinInstant(),
+                revolutionsPerMinute = sample.revolutionsPerMinute,
+            )
+        },
+        metadata = record.metadata.toMetadata(),
+    )
+    
     is HCExerciseSessionRecord -> ExerciseSessionRecord(
         startTime = record.startTime.toKotlinInstant(),
         endTime = record.endTime.toKotlinInstant(),
@@ -679,6 +692,18 @@ internal fun HCRecord.toHealthRecord(
         metadata = record.metadata.toMetadata(),
     )
 
+    is HCPowerRecord -> PowerRecord(
+        startTime = record.startTime.toKotlinInstant(),
+        endTime = record.endTime.toKotlinInstant(),
+        samples = record.samples.map { sample ->
+            PowerRecord.Sample(
+                time = sample.time.toKotlinInstant(),
+                power = sample.power.toPower(),
+            )
+        },
+        metadata = record.metadata.toMetadata(),
+    )
+
     is HCSleepSessionRecord -> SleepSessionRecord(
         startTime = record.startTime.toKotlinInstant(),
         endTime = record.endTime.toKotlinInstant(),
@@ -712,30 +737,6 @@ internal fun HCRecord.toHealthRecord(
         time = record.time.toKotlinInstant(),
         weight = record.weight.toMass(),
         metadata = record.metadata.toMetadata(),
-    )
-
-    is HCPowerRecord -> PowerRecord(
-        startTime = record.startTime.toKotlinInstant(),
-        endTime = record.endTime.toKotlinInstant(),
-        samples = record.samples.map { sample ->
-            PowerRecord.Sample(
-                time = sample.time.toKotlinInstant(),
-                power = sample.power.inWatts
-            )
-        },
-        metadata = record.metadata.toMetadata()
-    )
-
-    is HCPedalingCadenceRecord -> PedalingCadenceRecord(
-        startTime = record.startTime.toKotlinInstant(),
-        endTime = record.endTime.toKotlinInstant(),
-        samples = record.samples.map { sample ->
-            PedalingCadenceRecord.Sample(
-                time = sample.time.toKotlinInstant(),
-                revolutionsPerMinute = sample.revolutionsPerMinute
-            )
-        },
-        metadata = record.metadata.toMetadata()
     )
 
     else -> null
@@ -817,6 +818,12 @@ private fun Length.toHCLength(): HCLength =
 
 internal fun HCLength.toLength(): Length =
     Length.meters(inMeters)
+
+internal fun Power.toHCPower(): HCPower =
+    HCPower.watts(inWatts)
+
+internal fun HCPower.toPower(): Power =
+    Power.watts(inWatts)
 
 private fun Pressure.toHCPressure(): HCPressure =
     HCPressure.millimetersOfMercury(inMillimetersOfMercury)

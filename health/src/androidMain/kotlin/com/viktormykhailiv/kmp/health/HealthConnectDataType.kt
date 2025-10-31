@@ -23,7 +23,7 @@ import com.viktormykhailiv.kmp.health.HealthDataType.Exercise
 import com.viktormykhailiv.kmp.health.HealthDataType.HeartRate
 import com.viktormykhailiv.kmp.health.HealthDataType.Height
 import com.viktormykhailiv.kmp.health.HealthDataType.LeanBodyMass
-import com.viktormykhailiv.kmp.health.HealthDataType.PedalingCadence
+import com.viktormykhailiv.kmp.health.HealthDataType.CyclingPedalingCadence
 import com.viktormykhailiv.kmp.health.HealthDataType.Power
 import com.viktormykhailiv.kmp.health.HealthDataType.Sleep
 import com.viktormykhailiv.kmp.health.HealthDataType.Steps
@@ -39,6 +39,8 @@ internal fun HealthDataType.toRecordType(): KClass<out Record> = when (this) {
 
     BodyTemperature -> BodyTemperatureRecord::class
 
+    CyclingPedalingCadence -> CyclingPedalingCadenceRecord::class
+
     is Exercise -> ExerciseSessionRecord::class
 
     HeartRate -> HeartRateRecord::class
@@ -47,15 +49,13 @@ internal fun HealthDataType.toRecordType(): KClass<out Record> = when (this) {
 
     LeanBodyMass -> LeanBodyMassRecord::class
 
+    Power -> PowerRecord::class
+
     Sleep -> SleepSessionRecord::class
 
     Steps -> StepsRecord::class
 
     Weight -> WeightRecord::class
-
-    Power -> PowerRecord::class
-
-    PedalingCadence -> CyclingPedalingCadenceRecord::class
 }
 
 /**
