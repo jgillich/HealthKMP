@@ -9,8 +9,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: ubuntu-latest
-            task: build
+          #          - runner: ubuntu-latest
+          #            task: build
           - runner: macos-latest
             task: iosSimulatorArm64Test
 
@@ -25,4 +25,8 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - run: ./gradlew apiDump
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./health/api
       - run: ./gradlew ${{ matrix.task }}
