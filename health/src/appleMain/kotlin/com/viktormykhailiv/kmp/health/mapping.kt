@@ -244,7 +244,7 @@ internal fun HealthRecord.toHKObjects(): List<HKObject>? {
                 )
             }
         }
-        
+
         is ExerciseSessionRecord -> {
             return listOf(
                 HKWorkout.workoutWithActivityType(
@@ -486,6 +486,26 @@ internal suspend fun List<HKQuantitySample>.toHealthRecord(
             }
         }
 
+        HKQuantityTypeIdentifierCyclingCadence -> {
+            val metadata = firstOrNull()?.metadata.toMetadata()
+            map { sample ->
+                CyclingPedalingCadenceRecord.Sample(
+                    time = sample.startDate.toKotlinInstant(),
+                    revolutionsPerMinute = sample.quantity.rpmValue
+                )
+            }.sortedBy { it.time }
+                .let { samples ->
+                    listOf(
+                        CyclingPedalingCadenceRecord(
+                            startTime = samples.first().time,
+                            endTime = samples.last().time,
+                            samples = samples,
+                            metadata = metadata
+                        )
+                    )
+                }
+        }
+
         HKQuantityTypeIdentifierHeartRate -> {
             val metadata = firstOrNull()?.metadata.toMetadata()
             map { sample ->
@@ -539,26 +559,6 @@ internal suspend fun List<HKQuantitySample>.toHealthRecord(
                 .let { samples ->
                     listOf(
                         PowerRecord(
-                            startTime = samples.first().time,
-                            endTime = samples.last().time,
-                            samples = samples,
-                            metadata = metadata
-                        )
-                    )
-                }
-        }
-
-        HKQuantityTypeIdentifierCyclingCadence -> {
-            val metadata = firstOrNull()?.metadata.toMetadata()
-            map { sample ->
-                CyclingPedalingCadenceRecord.Sample(
-                    time = sample.startDate.toKotlinInstant(),
-                    revolutionsPerMinute = sample.quantity.rpmValue
-                )
-            }.sortedBy { it.time }
-                .let { samples ->
-                    listOf(
-                        CyclingPedalingCadenceRecord(
                             startTime = samples.first().time,
                             endTime = samples.last().time,
                             samples = samples,
