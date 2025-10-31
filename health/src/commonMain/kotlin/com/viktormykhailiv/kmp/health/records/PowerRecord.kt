@@ -35,5 +35,9 @@ data class PowerRecord(
     data class Sample(
         val time: Instant,
         val power: PowerUnit,
-    )
+    ) {
+        init {
+            require(power.inWatts >= 0 && power.inWatts <= 100000) { "power must be 0-100000." }
+        }
+    }
 }

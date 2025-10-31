@@ -32,5 +32,9 @@ data class CyclingPedalingCadenceRecord(
     data class Sample(
         val time: Instant,
         val revolutionsPerMinute: Double,
-    )
+    ) {
+        init {
+            require(revolutionsPerMinute >= 0 && revolutionsPerMinute <= 10000) { "revolutionsPerMinute must be 0-10000." }
+        }
+    }
 }
